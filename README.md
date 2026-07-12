@@ -1,8 +1,9 @@
 # rp2350-tz-tee
 
-TrustZone-M on the **RP2350** (Raspberry Pi Pico 2 / Cortex-M33): a hardware-verified recipe for
-running **Trusted Firmware-M (TF-M)** on the board, plus a **minimal, SDK-only Secure + Non-Secure
-example** — both validated on real hardware over SWD.
+Memory isolation on the **RP2350** (Raspberry Pi Pico 2), on both of its core types:
+a hardware-verified recipe for running **Trusted Firmware-M (TF-M)** on the Cortex-M33, a
+**minimal SDK-only Arm TrustZone-M example**, and its **RISC-V (Hazard3) PMP sibling** — all
+validated on real hardware over SWD.
 
 ## Why this exists
 
@@ -26,7 +27,8 @@ This repo fills that gap two ways:
 |---|---|
 | TF-M `rpi/rp2350` build + run | **regression 16/16 PASSED** (7 NS + 9 S), read over SWD |
 | The real bring-up pitfalls | 7 found & documented ([`docs/tf-m-bringup.md`](docs/tf-m-bringup.md)) |
-| Minimal SDK-only TZ example | **working end-to-end** ([`examples/minimal-tz/`](examples/minimal-tz/)): veneer calls succeed, illegal NS read is blocked as a SecureFault, secret never leaks |
+| Minimal SDK-only TZ example (Arm M33) | **working end-to-end** ([`examples/minimal-tz/`](examples/minimal-tz/)): veneer calls succeed, illegal NS read is blocked as a SecureFault, secret never leaks |
+| Minimal PMP example (RISC-V Hazard3) | **working end-to-end** ([`examples/minimal-pmp/`](examples/minimal-pmp/)): U-mode `ecall` services succeed, illegal U-mode read is blocked as a PMP fault, plus the Hazard3 `Xh3pmpm` M-mode-PMP feature |
 | RP2350 DMA-MPU mirroring | documented & implemented (RP2350-specific; most M33 tutorials miss it) |
 
 ## Layout
@@ -38,7 +40,8 @@ scripts/
   read_tfm_results.sh    # judge the TF-M regression purely over SWD (no serial)
 99-rpi-debugprobe.rules  # udev: non-root CMSIS-DAP + ttyACM access for the RPi Debug Probe
 examples/
-  minimal-tz/            # the minimal, SDK-only Secure + Non-Secure example (working, verified)
+  minimal-tz/            # minimal SDK-only Arm TrustZone-M Secure + Non-Secure example (verified)
+  minimal-pmp/           # RISC-V (Hazard3) sibling: M-mode/U-mode isolation with PMP (verified)
 reference/               # key files extracted from TF-M's rp2350 port, for study (BSD-3, attributed)
   target_cfg.c           #   SAU/IDAU config + DMA-MPU mirroring
   flash_layout.h         #   S/NS flash partition map
@@ -57,6 +60,9 @@ reference/               # key files extracted from TF-M's rp2350 port, for stud
   ~self-contained Secure world that guards a secret behind NSC veneers, a bare-metal Non-Secure
   world that calls in and gets blocked when it reaches across the boundary, and a writeup of the two
   RP2350-specific walls that shape the design.
+- **On the RISC-V cores instead?** Read [`examples/minimal-pmp/`](examples/minimal-pmp/) — the same
+  isolation with M-mode/U-mode + PMP + `ecall`, including the Hazard3-specific `Xh3pmpm` M-mode-PMP
+  feature. A side-by-side Arm-vs-RISC-V mapping is in its README.
 
 ## The RP2350 gotcha worth knowing
 
