@@ -1,0 +1,15 @@
+# Raspberry Pi Debug Probe (CMSIS-DAP + UART bridge), VID:PID 2e8a:000c
+# Grants a normal (non-root) user access to both SWD (CMSIS-DAP) and the serial
+# port (ttyACM) without sudo, and keeps that access across re-enumeration.
+#
+# Install:
+#   sudo cp 99-rpi-debugprobe.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload-rules && sudo udevadm trigger
+#   # then unplug/replug the Debug Probe
+#
+# CMSIS-DAP debug interface (accessed via libusb by openocd)
+SUBSYSTEM=="usb", ATTRS{idVendor}=="2e8a", ATTRS{idProduct}=="000c", MODE="0666", TAG+="uaccess"
+# UART serial bridge (ttyACMx) exposed by the same probe
+SUBSYSTEM=="tty", ATTRS{idVendor}=="2e8a", ATTRS{idProduct}=="000c", MODE="0666", GROUP="plugdev", TAG+="uaccess"
+# RP2350 in BOOTSEL / picoboot mode (2e8a:000f) -- for openocd/picotool flashing
+SUBSYSTEM=="usb", ATTRS{idVendor}=="2e8a", ATTRS{idProduct}=="000f", MODE="0666", TAG+="uaccess"

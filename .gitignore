@@ -1,0 +1,30 @@
+# Build artifacts
+build/
+build_rpi/
+*.o
+*.axf
+*.elf
+*.bin
+*.hex
+*.uf2
+*.map
+
+# Toolchain / SDK (cloned locally, not committed)
+arm-gnu-toolchain-*/
+armgcc.tar.xz
+trusted-firmware-m/
+tf-m-tests/
+pico-sdk/
+uf2/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
